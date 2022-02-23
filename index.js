@@ -3,6 +3,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 
 const route = require('./routes');
+const middleware = require('./middlewares');
 
 const app = express();
 
@@ -15,6 +16,8 @@ app.use('/sales', route.sales);
 app.get('/', (_request, response) => {
   response.send();
 });
+
+app.use(middleware.errorHandle);
 
 app.listen(process.env.PORT, () => {
   console.log(`Escutando na porta ${process.env.PORT}`);
