@@ -32,29 +32,47 @@ describe('CONTROLLERS TESTS', () => {
         }
       ]
 
-      // describe('Erro no catch', () => {
-      //   const request = {};
-      //   const response = {};
-      //   let next = () => {};
-      //   before(() => {
-      //     response.status = sinon.stub().returns(response);
-      //     response.json = sinon.stub().returns()
-      //     next = sinon.stub().returns();
+      describe('Erro no catch', () => {
+        const request = {};
+        const response = {};
+        let next = () => {};
+        
+        before(() => {
+          response.status = sinon.stub().returns(response);
+          response.json = sinon.stub().returns()
+          next = sinon.stub().returns();
       
-      //     sinon.stub(productsServices, 'getAll').resolves(false);
-      //   });
-  
-      //   after(() => {
-      //     productsServices.getAll.restore();
-      //   })
+          sinon.stub(productsServices, 'getAll').resolves(null);
+        });
 
-      //   it('erro status 500', async () => {
-      //     await productsControllers.getAll(request, response, next);
-  
-      //     expect(response.status.calledWith('500')).to.be.true;
-      //     expect(response.json.calledWith('')).to.be.true;
-      //   })
-      // })
+        after(() => {
+          productsServices.getAll.restore();
+        })
+
+        it('next é chamado', async () => {
+          try {
+            await productsControllers.findById(request, response, next);
+          } catch (err) {
+            expect(next.calledWith(err)).to.be.true;
+          }
+        })
+
+        it('erro status 500', async () => {
+          try {
+            await productsControllers.getAll(request, response, next);
+          } catch (err) {
+            expect(response.status.calledWith('500')).to.be.true;
+          }      
+        })
+        
+        it('mensagem esperada "Internal server error"' , async () => {
+          try {
+            await productsControllers.getAll(request, response, next);
+          } catch (err) {
+            expect(response.json.calledWith('Internal server error')).to.be.true;
+          }
+        })
+      })
 
       describe('Em caso de sucesso', () => {
         const request = {};
@@ -97,58 +115,64 @@ describe('CONTROLLERS TESTS', () => {
       quantity: 10
     };
 
-    // describe('Erro no catch', () => {
-    //   const request = {};
-    //   const response = {};
-    //   let next = () => {};
-    //   before(() => {
-    //     response.status = sinon.stub().returns(response);
-    //     response.json = sinon.stub().returns()
-    //     next = sinon.stub().returns();
+    describe('Erro no catch', () => {
+      const request = {};
+      const response = {};
+      let next = () => {};
+      
+      before(() => {
+        response.status = sinon.stub().returns(response);
+        response.json = sinon.stub().returns()
+        next = sinon.stub().returns();
     
-    //     sinon.stub(productsServices, 'getAll').resolves(false);
-    //   });
+        sinon.stub(productsServices, 'findById').resolves(false);
+      });
 
-    //   after(() => {
-    //     productsServices.getAll.restore();
-    //   })
+      after(() => {
+        productsServices.findById.restore();
+      })
 
-    //   it('erro status 500', async () => {
-    //     await productsControllers.getAll(request, response, next);
-
-    //     expect(response.status.calledWith('500')).to.be.true;
-    //     expect(response.json.calledWith('')).to.be.true;
-    //   })
-    // })
+      it('Levantar o erro esperado que caia no catch', async () => {
+        try {
+          await productsControllers.findById(request, response, next);
+        } catch(err){
+          expect(next.calledWith(err)).to.be.true;
+        }
+      }) // falso positivo? não sei testar kk
+    })
 
     describe('Produto não encontrado', () => {
       const request = {};
       const response = {};
       let next = () => {};
 
-      const dbFailResponse = [[], []];
       before(() => {
+        request.params = { id: 10 };
+
         response.status = sinon.stub().returns(response);
         response.json = sinon.stub().returns();
-  
-        sinon.stub(productsServices, "findById").resolves(dbFailResponse);
+        sinon.stub(productsServices, 'findById').resolves(null);
       });
   
       after(() => {
         productsServices.findById.restore();
       });
 
-      // it('Status 404', async () => {
-      //   request.params = 2;
-      //   await productsControllers.findById(request, response, next);
-      //   expect(response.status.calledWith(404)).to.be.true;
-      // })
+      it('Status 404', async () => {
+        try {
+          await productsControllers.findById(request, response, next);
+        } catch (err) {
+          expect(response.status.calledWith(404)).to.be.true;
+        }
+      })
 
-      // it('retorno de produtos no formato json', async () => {
-      //   request.params = 50;
-      //   await productsControllers.findById(request, response, next);
-      //   expect(response.json.calledWith('Product not found')).to.be.true;
-      // })
+      it('retorno de mensagem "Product not found"', async () => {
+        try {
+          await productsControllers.findById(request, response, next);
+        } catch (err) {
+          expect(response.json.calledWith('Product not found')).to.be.equal(true);
+        }
+      })
     })
 
     describe('Em caso de sucesso', () => {
