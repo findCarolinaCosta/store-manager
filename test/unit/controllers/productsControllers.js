@@ -50,27 +50,9 @@ describe('CONTROLLERS TESTS', () => {
         })
 
         it('next é chamado', async () => {
-          try {
-            await productsControllers.findById(request, response, next);
-          } catch (err) {
-            expect(next.calledWith(err)).to.be.true;
-          }
-        })
-
-        it('erro status 500', async () => {
-          try {
+            const error = { status: 500, message: 'Internal server error' };
             await productsControllers.getAll(request, response, next);
-          } catch (err) {
-            expect(response.status.calledWith('500')).to.be.true;
-          }      
-        })
-        
-        it('mensagem esperada "Internal server error"' , async () => {
-          try {
-            await productsControllers.getAll(request, response, next);
-          } catch (err) {
-            expect(response.json.calledWith('Internal server error')).to.be.true;
-          }
+            expect(next.calledWith(error)).to.be.true;
         })
       })
 
@@ -124,8 +106,9 @@ describe('CONTROLLERS TESTS', () => {
         response.status = sinon.stub().returns(response);
         response.json = sinon.stub().returns()
         next = sinon.stub().returns();
+        request.params = {}
     
-        sinon.stub(productsServices, 'findById').resolves(false);
+        sinon.stub(productsServices, 'findById').resolves(null);
       });
 
       after(() => {
@@ -133,12 +116,10 @@ describe('CONTROLLERS TESTS', () => {
       })
 
       it('Levantar o erro esperado que caia no catch', async () => {
-        try {
+          const error = { status: 400, message: 'Bad Request' };
           await productsControllers.findById(request, response, next);
-        } catch(err){
-          expect(next.calledWith(err)).to.be.true;
-        }
-      }) // falso positivo? não sei testar kk
+          expect(next.calledWith(error)).to.be.true;
+      });
     })
 
     describe('Produto não encontrado', () => {
@@ -151,6 +132,7 @@ describe('CONTROLLERS TESTS', () => {
 
         response.status = sinon.stub().returns(response);
         response.json = sinon.stub().returns();
+        next = sinon.stub().returns();
         sinon.stub(productsServices, 'findById').resolves(null);
       });
   
@@ -158,20 +140,10 @@ describe('CONTROLLERS TESTS', () => {
         productsServices.findById.restore();
       });
 
-      it('Status 404', async () => {
-        try {
-          await productsControllers.findById(request, response, next);
-        } catch (err) {
-          expect(response.status.calledWith(404)).to.be.true;
-        }
-      })
-
-      it('retorno de mensagem "Product not found"', async () => {
-        try {
-          await productsControllers.findById(request, response, next);
-        } catch (err) {
-          expect(response.json.calledWith('Product not found')).to.be.equal(true);
-        }
+      it('levanta erro esperado', async () => {
+        const error = { status: 404, message: 'Product not found' };  
+        await productsControllers.findById(request, response, next);
+        expect(next.calledWith(error)).to.be.true;
       })
     })
 
@@ -182,6 +154,7 @@ describe('CONTROLLERS TESTS', () => {
       before(() => {
         response.status = sinon.stub().returns(response);
         response.json = sinon.stub().returns();
+        request.params = { id: 1 };
   
         sinon.stub(productsServices, "findById").resolves(dbSucessResponse);
       });
@@ -191,7 +164,6 @@ describe('CONTROLLERS TESTS', () => {
       });
 
       it('Esperado status 200', async () => {
-        request.params = 1;
         await productsControllers.findById(request, response, next);
         expect(response.status.calledWith(200)).to.be.equal(true);
       })
