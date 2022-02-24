@@ -20,6 +20,11 @@ const findById = async (req, res, next) => {
     const { id } = req.params;
     const product = await Products.findById(id);
 
+    if (!id) {
+      const error = { status: 400, message: 'Bad Request' };
+      throw error;
+    }
+
     if (!product) {
       const error = { status: 404, message: 'Product not found' };
       throw error;
@@ -27,6 +32,7 @@ const findById = async (req, res, next) => {
 
     return res.status(200).json(product);
   } catch (error) {
+    console.log(error);
     next(error);
   }
 };
