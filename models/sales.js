@@ -8,7 +8,7 @@ const serialize = (data) => ({
   });
 
 const getAll = async () => {
-  const query = `SELECT sale_id, product_id, quantity, date
+  const query = `SELECT sp.sale_id, sp.product_id, sp.quantity, s.date
 FROM StoreManager.sales_products AS sp INNER JOIN StoreManager.sales AS s ON sp.sale_id = s.id;`;
   const [result] = await connection.execute(query);
 

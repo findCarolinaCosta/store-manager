@@ -3,6 +3,11 @@ const Products = require('../services/products');
 const getAll = async (_req, res, next) => {
   try {
     const products = await Products.getAll('author');
+
+    if (!products) {
+      const error = { status: 500, message: 'Internal server error' };
+      throw error;
+    }
     
     return res.status(200).json(products);
   } catch (error) {
