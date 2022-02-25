@@ -16,7 +16,7 @@ FROM StoreManager.sales_products AS sp INNER JOIN StoreManager.sales AS s ON sp.
 };
 
 const findById = async (id) => {
-  const query = `SELECT sp.product_id, sp.quantity, s.date FROM sales_products AS sp 
+  const query = `SELECT sp.product_id, sp.quantity, s.date FROM StoreManager.sales_products AS sp 
   INNER JOIN StoreManager.sales AS s ON sp.sale_id = s.id WHERE sp.sale_id = ?;`;
   const [result] = await connection.execute(query, [id]);
 
