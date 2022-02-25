@@ -18,8 +18,20 @@ const create = async (sales) => {
   return returnObj;
 };
 
+const update = async ({ sales, id: saleId }) => {
+  await sales.forEach(async ({ productId, quantity }) => {
+    await Sales.update({ saleId, productId, quantity });
+  });
+  const returnObj = {
+    saleId,
+    itemUpdated: sales,
+  };
+  return returnObj;
+};
+
 module.exports = {
   getAll,
   findById,
   create,
+  update,
 };
