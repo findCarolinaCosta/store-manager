@@ -22,7 +22,11 @@ const findById = async (id) => {
 
   if (result.length === 0) return null;
 
-  return result.map(serialize);
+  return result.map((data) => ({
+    productId: data.product_id,
+    quantity: data.quantity,
+    date: data.date,
+  }));
 };
 
 const create = async () => {
