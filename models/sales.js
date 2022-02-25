@@ -38,13 +38,15 @@ const create = async () => {
 const createProduct = async ({ saleId, productId, quantity }) => {
   const query = `INSERT INTO StoreManager.sales_products 
   (sale_id, product_id, quantity) VALUES (?, ?, ?);`;
-  await connection.execute(query, [saleId, productId, quantity]);
+  const [result] = await connection.execute(query, [saleId, productId, quantity]);
+  return result;
 };
 
 const update = async ({ saleId, productId, quantity }) => {
   const query = `UPDATE StoreManager.sales_products SET quantity = ? 
   WHERE sale_id = ? AND product_id = ?;`;
-  await connection.execute(query, [quantity, saleId, productId]);
+  const [result] = await connection.execute(query, [quantity, saleId, productId]);
+  return result;
 };
 
 module.exports = {
