@@ -13,6 +13,6 @@ Router
   .route('/:id')
   .get(Products.findById);
 
-Router.put('/:id', middlewares.validateProduct);
+Router.put('/:id', middlewares.validateProduct, Products.update);
 
 module.exports = Router;

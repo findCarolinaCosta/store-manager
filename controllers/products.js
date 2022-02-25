@@ -54,8 +54,27 @@ const create = async (req, res, next) => {
   }
 };
 
+const update = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { name, quantity } = req.body;
+    const product = await Products.update({ id, name, quantity });
+
+    if (!product) {
+      const err = { status: 404, message: 'Product not found' };
+      throw err;
+    }
+
+    return res.status(200).json(product);
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+};
+
 module.exports = {
   getAll,
   findById,
   create,
+  update,
 };

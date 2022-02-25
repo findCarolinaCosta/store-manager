@@ -20,8 +20,25 @@ const create = async ({ name, quantity }) => {
   return productCreated;
 };
 
+const update = async ({ id, name, quantity }) => {
+  const allProducts = await Products.getAll();
+  const isExistingProduct = allProducts.some(({ id: prodId }) => Number(prodId) === Number(id));
+  if (!isExistingProduct) {
+    return null;
+  }
+  const { affectedRows } = await Products.update({ id, name, quantity });
+
+  const editedProduct = {
+    id,
+    name,
+    quantity,
+  };
+  return (affectedRows === 1 ? editedProduct : null);
+};
+
 module.exports = {
   getAll,
   findById,
   create,
+  update,
 };
