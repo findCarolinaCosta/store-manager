@@ -29,9 +29,20 @@ const update = async ({ sales, id: saleId }) => {
   return returnObj;
 };
 
+const destroy = async (id) => {
+  const isExistingProduct = await Sales.findById(id);
+
+  if (!isExistingProduct) {
+    return false;
+  }
+  await Sales.destroy(id);
+  return true;
+};
+
 module.exports = {
   getAll,
   findById,
   create,
   update,
+  destroy,
 };

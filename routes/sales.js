@@ -13,6 +13,7 @@ Router.get('/:id', Sales.findById);
 
 Router
   .route('/:id')
-  .put(middlewares.validateSale, Sales.update);
+  .put(middlewares.validateSale, Sales.update)
+  .delete(Sales.destroy);
 
 module.exports = Router;

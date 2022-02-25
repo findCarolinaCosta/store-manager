@@ -37,9 +37,27 @@ const update = async (req, res) => {
   return res.status(200).json(salesResult);
 };
 
+const destroy = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const product = await Sales.destroy(id);
+  
+    if (!product) {
+      const err = { status: 404, message: 'Sale not found' };
+        throw err;
+    }
+  
+    return res.status(204).end();
+  } catch (error) {
+    console.log('catch-log:', error);
+    next(error);
+  }
+};
+
 module.exports = {
   getAll,
   findById,
   create,
   update,
+  destroy,
 };
