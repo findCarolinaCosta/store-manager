@@ -131,10 +131,24 @@ describe('SALES MODEL TESTS', () => {
 
   describe('Testa função create', () => { 
     describe('Sucesso na criação da venda', () => {
-      describe('Criação de uma venda', () => { 
-          const saleMock = { insertId: 3 }
+      describe('Criação de apenas uma venda', () => { 
+          const saleMock = {
+            fieldCount: 0,
+            affectedRows: 1,
+            insertId: 3,
+            info: '',
+            serverStatus: 2,
+            warningStatus: 0
+          }
 
-          const dbSucessResponse = [{ insertId: 3 }]
+          const dbSucessResponse = [{
+            fieldCount: 0,
+            affectedRows: 1,
+            insertId: 3,
+            info: '',
+            serverStatus: 2,
+            warningStatus: 0
+          }]
 
           before(() => {
             sinon.stub(connection, "execute").resolves(dbSucessResponse);
@@ -163,22 +177,111 @@ describe('SALES MODEL TESTS', () => {
           );
         })
       })
-
-      //  describe('Criação de várias vendas', () => { 
-      //   const saleMock =  []
-
-      // const dbSucessResponse = []
-
-      // before(() => {
-      //   sinon.stub(connection, "execute").resolves(dbSucessResponse);
-      // });
-    
-      // after(() => {
-      //   connection.execute.restore();
-      // });
-
-      //   })
-      
      })
    })
+
+   describe('Função createProduct', () => { 
+
+      describe('Erro ao passar nenhum dado do objeto', () => { 
+        it("Retorna um TypeError", async () => {
+          try {
+            await salesModels.createProduct();
+          } catch (e) {
+            expect(e).to.be.an.instanceof(TypeError);
+          }
+        });
+      })
+
+     describe('Cria um produto por vez', () => { 
+      const saleMock = {
+        saleId: 1,
+        productId: 2,
+        quantity: 2,
+      }
+  
+       const dbSucessResponse =  [
+         {
+          fieldCount: 0,
+          affectedRows: 1,
+          insertId: 0,
+          info: '',
+          serverStatus: 2,
+          warningStatus: 0
+        }
+      ]
+  
+      before(() => {
+        sinon.stub(connection, "execute").resolves(dbSucessResponse);
+      });
+    
+      after(() => {
+        connection.execute.restore();
+      });
+  
+      // testando se sempre retorna objeto não vazio
+      it("objeto não é vazio", async () => {
+        const response = await salesModels.createProduct(saleMock);
+        expect(response).to.be.not.empty;
+      });
+  
+      // testando se afeta uma linha
+      it('Cria o produto corretamente', async () => {
+        const response = await salesModels.createProduct(saleMock);
+        
+        expect(response.affectedRows).to.be.equal(1);
+      })
+      })
+  })
+
+  describe('Função update', () => {
+    describe('Erro ao passar nenhum parâmetro', () => { 
+      it("Retorna um TypeError", async () => {
+        try {
+          await salesModels.update();
+        } catch (e) {
+          expect(e).to.be.an.instanceof(TypeError);
+        }
+      });
+    })
+
+    describe('Retorna quantidade de linhas afetadas', () => { 
+      const saleMock = {
+        saleId: 1,
+        productId: 2,
+        quantity: 20,
+      }
+  
+       const dbSucessResponse =  [
+         {
+          fieldCount: 0,
+          affectedRows: 1,
+          insertId: 0,
+          info: '',
+          serverStatus: 2,
+          warningStatus: 0
+        }
+      ]
+  
+      before(() => {
+        sinon.stub(connection, "execute").resolves(dbSucessResponse);
+      });
+    
+      after(() => {
+        connection.execute.restore();
+      });
+  
+      // testando se sempre retorna objeto não vazio
+      it("objeto não é vazio", async () => {
+        const response = await salesModels.update(saleMock);
+        expect(response).to.be.not.empty;
+      });
+  
+      // testando se afeta uma linha
+      it('Atualização afeta apenas 1 linha', async () => {
+        const response = await salesModels.update(saleMock);
+        
+        expect(response.affectedRows).to.be.equal(1);
+      })
+     })
+  })
 })
