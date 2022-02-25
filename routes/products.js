@@ -4,12 +4,15 @@ const Router = express.Router();
 const Products = require('../controllers/products');
 const middlewares = require('../middlewares');
 
-Router.get('/', Products.getAll);
+Router
+  .route('/')
+  .get(Products.getAll)
+  .post(middlewares.validateProduct);
 
-Router.get('/:id', Products.findById);
+Router
+  .route('/:id')
+  .get(Products.findById);
 
-Router.post('/', middlewares.validateProduct);
-
-Router.put('/', middlewares.validateProduct);
+Router.put('/:id', middlewares.validateProduct);
 
 module.exports = Router;
