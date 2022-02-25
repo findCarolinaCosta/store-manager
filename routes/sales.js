@@ -7,7 +7,7 @@ const middlewares = require('../middlewares');
 Router
   .route('/')
   .get(Sales.getAll)
-  .post(middlewares.validateSale);
+  .post(middlewares.validateSale, Sales.create);
 
 Router.get('/:id', Sales.findById);
 

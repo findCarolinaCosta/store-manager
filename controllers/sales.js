@@ -25,7 +25,13 @@ const findById = async (req, res, next) => {
   }
 };
 
+const create = async (req, res) => {
+  const product = await Sales.create(req.body);
+  return res.status(201).json(product);
+};
+
 module.exports = {
   getAll,
   findById,
+  create,
 };
