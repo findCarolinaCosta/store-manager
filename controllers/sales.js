@@ -25,9 +25,19 @@ const findById = async (req, res, next) => {
   }
 };
 
-const create = async (req, res) => {
-  const sale = await Sales.create(req.body);
+const create = async (req, res, next) => {
+  try {
+    const sale = await Sales.create(req.body);
+
+  if (!sale) {
+    const error = { status: 422, message: 'Such amount is not permitted to sell' };
+  throw error;
+  }
+
   return res.status(201).json(sale);
+  } catch (error) {
+    next(error);
+  }
 };
 
 const update = async (req, res) => {

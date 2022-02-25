@@ -6,6 +6,12 @@ const updateProduct = async ({ productId, quantity }) => {
   return result;
 };
 
+const findByProductId = async (id) => {
+  const query = 'SELECT * FROM StoreManager.products WHERE id = ?;';
+  const [result] = await connection.execute(query, [id]);
+  return result;
+};
+
 const serialize = (data) => ({
     saleId: data.sale_id,
     productId: data.product_id,
@@ -83,4 +89,5 @@ module.exports = {
   update,
   destroy,
   updateProduct,
+  findByProductId,
 };

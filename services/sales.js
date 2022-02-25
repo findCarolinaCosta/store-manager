@@ -6,9 +6,16 @@ const findById = async (id) => Sales.findById(id);
 
 const create = async (sales) => {
   const { insertId: saleId } = await Sales.create();
+  
   await sales.forEach(async ({ productId, quantity }) => {
     await Sales.createSalesProduct({ saleId, productId, quantity });
   });
+
+  const [product] = await Sales.findByProductId(sales[0].productId);
+  if (product.quantity <= sales[0].quantity) {
+   return false;
+  }
+
   const returnObj = {
     id: saleId,
     itemsSold: sales,
