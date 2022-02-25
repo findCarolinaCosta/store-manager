@@ -7,7 +7,7 @@ const middlewares = require('../middlewares');
 Router
   .route('/')
   .get(Products.getAll)
-  .post(middlewares.validateProduct);
+  .post(middlewares.validateProduct, Products.create);
 
 Router
   .route('/:id')

@@ -37,7 +37,25 @@ const findById = async (req, res, next) => {
   }
 };
 
+const create = async (req, res, next) => {
+  try {
+    const { name, quantity } = req.body;
+
+    const product = await Products.create({ name, quantity });
+
+    if (!product) {
+      const err = { status: 409, message: 'Product already exists' };
+      throw err;
+    }
+    
+    return res.status(201).json(product);
+  } catch (e) {
+    next(e);
+  }
+};
+
 module.exports = {
   getAll,
   findById,
+  create,
 };
