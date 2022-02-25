@@ -1,5 +1,11 @@
 const connection = require('./connection');
 
+const updateProduct = async ({ productId, quantity }) => {
+  const query = 'UPDATE StoreManager.products SET quantity = ? WHERE id = ?;';
+  const [result] = await connection.execute(query, [quantity, productId]);
+  return result;
+};
+
 const serialize = (data) => ({
     saleId: data.sale_id,
     productId: data.product_id,
@@ -35,7 +41,12 @@ const create = async () => {
   return result;
 };
 
-const createProduct = async ({ saleId, productId, quantity }) => {
+const createSalesProduct = async ({ saleId, productId, quantity }) => {
+  const queryProduct = 'SELECT * FROM StoreManager.products WHERE id = ?;';
+  const [product] = await connection.execute(queryProduct, [productId]);
+  const newQuantity = product[0].quantity - quantity;
+  await updateProduct({ productId, quantity: newQuantity });
+
   const query = `INSERT INTO StoreManager.sales_products 
   (sale_id, product_id, quantity) VALUES (?, ?, ?);`;
   const [result] = await connection.execute(query, [saleId, productId, quantity]);
@@ -50,7 +61,17 @@ const update = async ({ saleId, productId, quantity }) => {
 };
 
 const destroy = async (id) => {
+  const queryProductId = 'SELECT product_id FROM StoreManager.sales_products WHERE sale_id = ?;';
+  const queryProduct = 'SELECT * FROM StoreManager.products WHERE id = ?;';
   const query = 'DELETE FROM StoreManager.sales_products WHERE sale_id = ?;';
+
+  const [productId] = await connection.execute(queryProductId, [id]);
+  const [product] = await connection.execute(queryProduct, [productId[0].product_id]);
+  const sale = await findById(id);
+
+  const newQuantity = product[0].quantity + sale[0].quantity;
+
+  await updateProduct({ productId: productId[0].product_id, quantity: newQuantity });
   await connection.execute(query, [id]);
 };
 
@@ -58,7 +79,8 @@ module.exports = {
   getAll,
   findById,
   create,
-  createProduct,
+  createSalesProduct,
   update,
   destroy,
+  updateProduct,
 };

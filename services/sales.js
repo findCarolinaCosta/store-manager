@@ -6,11 +6,9 @@ const findById = async (id) => Sales.findById(id);
 
 const create = async (sales) => {
   const { insertId: saleId } = await Sales.create();
-
   await sales.forEach(async ({ productId, quantity }) => {
-    await Sales.createProduct({ saleId, productId, quantity });
+    await Sales.createSalesProduct({ saleId, productId, quantity });
   });
-
   const returnObj = {
     id: saleId,
     itemsSold: sales,
@@ -30,9 +28,9 @@ const update = async ({ sales, id: saleId }) => {
 };
 
 const destroy = async (id) => {
-  const isExistingProduct = await Sales.findById(id);
+  const findSale = await Sales.findById(id);
 
-  if (!isExistingProduct) {
+  if (!findSale) {
     return false;
   }
   await Sales.destroy(id);
