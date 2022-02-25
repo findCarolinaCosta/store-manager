@@ -72,9 +72,27 @@ const update = async (req, res, next) => {
   }
 };
 
+const destroy = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const product = await Products.destroy(id);
+  
+    if (!product) {
+      const err = { status: 404, message: 'Product not found' };
+        throw err;
+    }
+  
+    return res.status(204).end();
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+};
+
 module.exports = {
   getAll,
   findById,
   create,
   update,
+  destroy,
 };

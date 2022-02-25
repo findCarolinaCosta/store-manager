@@ -11,7 +11,8 @@ Router
 
 Router
   .route('/:id')
-  .get(Products.findById);
+  .get(Products.findById)
+  .delete(Products.destroy);
 
 Router.put('/:id', middlewares.validateProduct, Products.update);
 

@@ -36,9 +36,20 @@ const update = async ({ id, name, quantity }) => {
   return (affectedRows === 1 ? editedProduct : null);
 };
 
+const destroy = async (id) => {
+  const isExistingProduct = await Products.findById(id);
+
+  if (!isExistingProduct) {
+    return false;
+  }
+  await Products.destroy(id);
+  return true;
+};
+
 module.exports = {
   getAll,
   findById,
   create,
   update,
+  destroy,
 };
