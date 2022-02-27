@@ -9,6 +9,9 @@ const updateProduct = async ({ productId, quantity }) => {
 const findByProductId = async (id) => {
   const query = 'SELECT * FROM StoreManager.products WHERE id = ?;';
   const [result] = await connection.execute(query, [id]);
+
+  if (result.length === 0) return null;
+
   return result;
 };
 
@@ -78,7 +81,8 @@ const destroy = async (id) => {
   const newQuantity = product[0].quantity + sale[0].quantity;
 
   await updateProduct({ productId: productId[0].product_id, quantity: newQuantity });
-  await connection.execute(query, [id]);
+  const [result] = await connection.execute(query, [id]);
+  return result;
 };
 
 module.exports = {

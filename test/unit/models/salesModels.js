@@ -85,6 +85,7 @@ describe('SALES MODEL TESTS', () => {
         expect(response).to.be.deep.equal(null);
       })
      })
+
     describe('retorna venda pelo id', () => {
       const saleMock = [{
           date: "2021-09-09T04:54:29.000Z",
@@ -180,12 +181,12 @@ describe('SALES MODEL TESTS', () => {
      })
    })
 
-   describe('Função createProduct', () => { 
+   describe('Função createSalesProduct', () => { 
 
       describe('Erro ao passar nenhum dado do objeto', () => { 
         it("Retorna um TypeError", async () => {
           try {
-            await salesModels.createProduct();
+            await salesModels.createSalesProduct();
           } catch (e) {
             expect(e).to.be.an.instanceof(TypeError);
           }
@@ -199,7 +200,7 @@ describe('SALES MODEL TESTS', () => {
         quantity: 2,
       }
   
-       const dbSucessResponse =  [
+       const dbSucessResponse =  [[
          {
           fieldCount: 0,
           affectedRows: 1,
@@ -208,7 +209,7 @@ describe('SALES MODEL TESTS', () => {
           serverStatus: 2,
           warningStatus: 0
         }
-      ]
+      ], []]
   
       before(() => {
         sinon.stub(connection, "execute").resolves(dbSucessResponse);
@@ -220,17 +221,17 @@ describe('SALES MODEL TESTS', () => {
   
       // testando se sempre retorna objeto não vazio
       it("objeto não é vazio", async () => {
-        const response = await salesModels.createProduct(saleMock);
+        const response = await salesModels.createSalesProduct(saleMock);
         expect(response).to.be.not.empty;
       });
   
       // testando se afeta uma linha
       it('Cria o produto corretamente', async () => {
-        const response = await salesModels.createProduct(saleMock);
+        const response = await salesModels.createSalesProduct(saleMock);
         
-        expect(response.affectedRows).to.be.equal(1);
+        expect(response[0].affectedRows).to.be.equal(1);
       })
-      })
+    })
   })
 
   describe('Função update', () => {
@@ -283,5 +284,120 @@ describe('SALES MODEL TESTS', () => {
         expect(response.affectedRows).to.be.equal(1);
       })
      })
+  })
+})
+
+describe('Função findByProductId', () => {
+  describe('Se id não exitir', () => { 
+    const dbSucessResponse = [[], []];
+    before(() => {
+      sinon.stub(connection, "execute").resolves(dbSucessResponse);
+    });
+  
+    after(() => {
+      connection.execute.restore();
+    });
+
+    it('retornar null', async () => {
+      const response = await salesModels.findByProductId();
+      expect(response).to.be.deep.equal(null);
+    })
+  })
+
+  describe('Se id exitir', () => {
+    const productMock =  {
+    id: 1,
+    name: "produto A",
+    quantity: 10
+    }
+
+    const dbSucessResponse =   [[{
+    id: 1,
+    name: "produto A",
+    quantity: 10
+    }], []]
+
+    before(() => {
+      sinon.stub(connection, "execute").resolves(dbSucessResponse);
+    });
+
+    after(() => {
+      connection.execute.restore();
+    });
+
+    it("objeto não é vazio", async () => {
+      const response = await salesModels.findByProductId(1);
+      expect(response).to.be.not.empty;
+    });
+
+    it('Retorna um objeto com as informações do produto', async () => {
+      const [response] = await salesModels.findByProductId(1);
+
+      expect(response).to.be.deep.equal(productMock);
+    })
+
+    it('O objeto retornado contém as chaves: id, name e quantity', async () => {
+      const [response] = await salesModels.findByProductId(1);
+
+      expect(response).to.include.all.keys(
+      "id",
+      "name",
+      "quantity",
+      );
+    })
+  })
+
+  describe('Função destroy', () => { 
+    describe('Se id não exitir', () => { 
+      const dbSucessResponse = [[], []];
+      before(() => {
+        sinon.stub(connection, "execute").resolves(dbSucessResponse);
+      });
+    
+      after(() => {
+        connection.execute.restore();
+      });
+  
+      it('retornar null', async () => {
+        const response = await salesModels.findByProductId();
+        expect(response).to.be.deep.equal(null);
+      })
+    })
+   })
+
+   describe('Se id exitir', () => { 
+    const productMock =  {
+      fieldCount: 0,
+      affectedRows: 0,
+      insertId: 0,
+      info: '',
+      serverStatus: 2,
+      warningStatus: 0
+    }
+  
+    const dbSucessResponse =  [ 
+      [{
+        fieldCount: 0,
+        affectedRows: 0,
+        insertId: 0,
+        info: '',
+        serverStatus: 2,
+        warningStatus: 0
+      }],
+      []
+    ]
+  
+    before(() => {
+      sinon.stub(connection, "execute").resolves(dbSucessResponse);
+    });
+
+    after(() => {
+      connection.execute.restore();
+    });
+
+    it('retorna um array de objeto', async () => {
+      const [response] = await salesModels.destroy(1);
+      expect(response).to.be.deep.equal(productMock);
+    })
   })
 })
