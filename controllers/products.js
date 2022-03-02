@@ -11,6 +11,7 @@ const getAll = async (_req, res, next) => {
     
     return res.status(200).json(products);
   } catch (error) {
+    console.log(error);
     next(error);
   }
 };
@@ -50,6 +51,7 @@ const create = async (req, res, next) => {
     
     return res.status(201).json(product);
   } catch (e) {
+    console.error(e);
     next(e);
   }
 };
@@ -67,7 +69,7 @@ const update = async (req, res, next) => {
 
     return res.status(200).json(product);
   } catch (error) {
-    console.log(error);
+    console.error(error);
     next(error);
   }
 };
@@ -84,7 +86,7 @@ const destroy = async (req, res, next) => {
   
     return res.status(204).end();
   } catch (error) {
-    console.log(error);
+    console.error(error);
     next(error);
   }
 };
