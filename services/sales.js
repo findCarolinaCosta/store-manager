@@ -7,30 +7,36 @@ const findById = async (id) => Sales.findById(id);
 const create = async (sales) => {
   const { insertId: saleId } = await Sales.create();
   
-  await sales.forEach(async ({ productId, quantity }) => {
-    await Sales.createSalesProduct({ saleId, productId, quantity });
-  });
+  const createList = await Promise.all(sales.map(async ({ productId, quantity }) => {
+    const [product] = await Sales.findByProductId(productId);
+    
+    if (product.quantity <= quantity) return true;
 
-  const [product] = await Sales.findByProductId(sales[0].productId);
-  if (product.quantity <= sales[0].quantity) {
-   return false;
-  }
+    await Sales.createSalesProduct({ saleId, productId, quantity });
+  }));
+
+  const checkItems = createList.some((product) => product);
+
+  if (checkItems) return null;
 
   const returnObj = {
     id: saleId,
     itemsSold: sales,
   };
+
   return returnObj;
 };
 
 const update = async ({ sales, id: saleId }) => {
-  await sales.forEach(async ({ productId, quantity }) => {
+  await Promise.all(sales.map(async ({ productId, quantity }) => {
     await Sales.update({ saleId, productId, quantity });
-  });
+  }));
+
   const returnObj = {
     saleId,
     itemUpdated: sales,
   };
+
   return returnObj;
 };
 
