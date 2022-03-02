@@ -23,6 +23,7 @@ const create = async ({ name, quantity }) => {
 const update = async ({ id, name, quantity }) => {
   const allProducts = await Products.getAll();
   const isExistingProduct = allProducts.some(({ id: prodId }) => Number(prodId) === Number(id));
+
   if (!isExistingProduct) {
     return null;
   }
@@ -33,7 +34,7 @@ const update = async ({ id, name, quantity }) => {
     name,
     quantity,
   };
-  return (affectedRows === 1 ? editedProduct : null);
+  return (affectedRows > 0 ? editedProduct : null);
 };
 
 const destroy = async (id) => {
@@ -42,8 +43,9 @@ const destroy = async (id) => {
   if (!isExistingProduct) {
     return false;
   }
-  await Products.destroy(id);
-  return true;
+
+  const result = await Products.destroy(id);
+  return result;
 };
 
 module.exports = {
