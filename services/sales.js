@@ -28,6 +28,10 @@ const create = async (sales) => {
 };
 
 const update = async ({ sales, id: saleId }) => {
+  const sale = await findById(saleId);
+
+  if (!sale) return null;
+
   await Promise.all(sales.map(async ({ productId, quantity }) => {
     await Sales.update({ saleId, productId, quantity });
   }));
@@ -42,9 +46,9 @@ const update = async ({ sales, id: saleId }) => {
 
 const destroy = async (id) => {
   const findSale = await Sales.findById(id);
-
+  
   if (!findSale) return null;
-
+  
   const result = await Sales.destroy(id);
   return result;
 };
