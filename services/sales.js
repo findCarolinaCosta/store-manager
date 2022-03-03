@@ -43,11 +43,10 @@ const update = async ({ sales, id: saleId }) => {
 const destroy = async (id) => {
   const findSale = await Sales.findById(id);
 
-  if (!findSale) {
-    return false;
-  }
-  await Sales.destroy(id);
-  return true;
+  if (!findSale) return null;
+
+  const result = await Sales.destroy(id);
+  return result;
 };
 
 module.exports = {
