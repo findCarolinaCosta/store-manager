@@ -45,21 +45,21 @@ describe("SALES SERVICE TESTS", () => {
     });
 
     it("Retorna um objeto", async () => {
-      const products = await salesModels.getAll();
+      const sales = await salesModels.getAll();
 
-      expect(typeof products).to.be.equal("object");
+      expect(typeof sales).to.be.equal("object");
     });
 
     it("Retorna array de objeto com as informações dos produtos", async () => {
-      const products = await salesModels.getAll();
+      const sales = await salesModels.getAll();
 
-      expect(products).to.be.deep.equal(salesMock);
+      expect(sales).to.be.deep.equal(salesMock);
     });
 
     it("Os objetos contém as chaves: id, name e quantity", async () => {
-      const products = await salesModels.getAll();
+      const sales = await salesModels.getAll();
 
-      products.forEach((product) => {
+      sales.forEach((product) => {
         expect(product).to.include.all.keys(
           "date",
           "productId",
@@ -87,24 +87,15 @@ describe("SALES SERVICE TESTS", () => {
     });
 
     describe("retorna venda pelo id", () => {
-      const saleMock = [
-        {
-          date: "2021-09-09T04:54:29.000Z",
-          productId: 1,
-          quantity: 2,
-        },
-      ];
-
-      const responseSalesModels = [
-        {
-          date: "2021-09-09T04:54:29.000Z",
-          productId: 1,
-          quantity: 2,
-        },
-      ];
+      const saleMock = {
+        date: "2021-09-09T04:54:29.000Z",
+        productId: 1,
+        quantity: 2,
+      };
+      
 
       before(() => {
-        sinon.stub(salesModels, "findById").resolves(responseSalesModels);
+        sinon.stub(salesModels, "findById").resolves(saleMock);
       });
 
       after(() => {
@@ -112,7 +103,7 @@ describe("SALES SERVICE TESTS", () => {
       });
 
       it("objeto não é vazio", async () => {
-        const [response] = await salesModels.findById(1);
+        const response = await salesModels.findById(1);
         expect(response).to.be.not.empty;
       });
 
@@ -123,7 +114,7 @@ describe("SALES SERVICE TESTS", () => {
       });
 
       it("O objeto retornado contém as chaves: productId, quantity e date", async () => {
-        const [response] = await salesModels.findById(1);
+        const response = await salesModels.findById(1);
 
         expect(response).to.include.all.keys("productId", "quantity", "date");
       });
@@ -131,7 +122,7 @@ describe("SALES SERVICE TESTS", () => {
   });
 
   describe("Função create", () => {
-    describe("Quantidade do produto é menor do que a quantidade da venda", () => {
+    describe("Quantidade da venda é maior do que a quantidade do produto em estoque", () => {
       const responseCreate = { insertId: 3 };
       const reponseProduct = [
         {
@@ -145,6 +136,7 @@ describe("SALES SERVICE TESTS", () => {
           quantity: 20,
         },
       ];
+
       const sales = [
         {
           productId: 1,
@@ -173,18 +165,14 @@ describe("SALES SERVICE TESTS", () => {
       });
     });
 
-    describe("Quantidade do produto é maior do que a quantidade da venda", () => {
+    describe("Quantidade da venda é menor do que a quantidade do produto em estoque", () => {
       const responseCreate = { insertId: 3 };
 
       const sales = [
         {
           productId: 1,
           quantity: 5,
-        },
-        {
-          productId: 2,
-          quantity: 15,
-        },
+        }
       ];
 
       const reponseCreateProduct = {
@@ -254,6 +242,32 @@ describe("SALES SERVICE TESTS", () => {
       });
     });
 
+    describe('Erro se não achar venda pelo id', () => {
+      const sales = [
+        {
+          productId: 1,
+          quantity: 5,
+        },
+        {
+          productId: 2,
+          quantity: 15,
+        },
+      ];
+
+      before(() => {
+        sinon.stub(salesModels, "findById").resolves(null);
+      });
+
+      after(() => {
+        salesModels.findById.restore();
+      });
+
+      it('retorna null', async () => {
+        const response = await salesServices.update({ sales, id: 3 });
+        expect(response).to.be.null;
+      })
+    })
+
     describe("Sucesso ao atualizar vendas", () => {
       const sales = [
         {
@@ -265,6 +279,11 @@ describe("SALES SERVICE TESTS", () => {
           quantity: 15,
         },
       ];
+
+      const returnFind = [
+        { productId: 1, quantity: 20, date: "2022-03-03T20:08:43.000Z" },
+        { productId: 2, quantity: 3, date: "2022-03-03T20:08:43.000Z" }
+      ]
 
       const reponseUpdateSale = {
         fieldCount: 0,
@@ -281,11 +300,13 @@ describe("SALES SERVICE TESTS", () => {
       };
 
       before(() => {
+        sinon.stub(salesModels, "findById").resolves(returnFind);
         sinon.stub(salesModels, "update").resolves(reponseUpdateSale);
       });
 
       after(() => {
         salesModels.update.restore();
+        salesModels.findById.restore();
       });
 
       it("retorna um objeto", async () => {
@@ -304,7 +325,7 @@ describe("SALES SERVICE TESTS", () => {
         expect(response).to.be.deep.equal(mockReturn);
       });
 
-      it("objeto contém as chaves: id, name e quantity", async () => {
+      it("objeto contém as chaves: saleId e itemUpdated", async () => {
         const reponse = await salesServices.update({ sales, id: 3 });
 
         expect(reponse).to.include.all.keys("saleId", "itemUpdated");
@@ -348,23 +369,21 @@ describe("SALES SERVICE TESTS", () => {
     });
 
     describe("quando id existir", () => {
-      const mockReturnDestroyModel = [
-        {
-          fieldCount: 0,
-          affectedRows: 1,
-          insertId: 0,
-          info: "",
-          serverStatus: 2,
-          warningStatus: 0,
-        },
-      ];
+      const mockReturnDestroyModel = {
+        fieldCount: 0,
+        affectedRows: 1,
+        insertId: 0,
+        info: '',
+        serverStatus: 2,
+        warningStatus: 0
+      }
 
       const mockReturnModel = [
         {
           productId: 3,
           quantity: 15,
           date: "2022-03-03T00:57:32.000Z",
-        },
+        }
       ];
 
       const expectedReturn = {
@@ -392,12 +411,12 @@ describe("SALES SERVICE TESTS", () => {
       });
 
       it("objeto não é vazio", async () => {
-        const [response] = await salesServices.destroy(3);
+        const response = await salesServices.destroy(3);
         expect(response).to.be.not.empty;
       });
 
       it("objeto é igual ao esperado", async () => {
-        const [response] = await salesServices.destroy(3);
+        const response = await salesServices.destroy(3);
         expect(response).to.be.deep.equal(expectedReturn);
       });
     });
