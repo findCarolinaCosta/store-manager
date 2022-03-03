@@ -47,7 +47,12 @@ describe("SALES SERVICE TESTS", () => {
     it("Retorna um objeto", async () => {
       const sales = await salesModels.getAll();
 
-      expect(typeof sales).to.be.equal("object");
+      expect(sales).to.be.an("array");
+    });
+
+    it("objeto não é vazio", async () => {
+      const sales = await salesModels.getAll();
+      expect(sales).to.be.not.empty;
     });
 
     it("Retorna array de objeto com as informações dos produtos", async () => {
@@ -82,7 +87,7 @@ describe("SALES SERVICE TESTS", () => {
 
       it("retornar null", async () => {
         const response = await salesServices.findById(20);
-        expect(response).to.be.deep.equal(null);
+        expect(response).to.be.null;
       });
     });
 
@@ -92,7 +97,6 @@ describe("SALES SERVICE TESTS", () => {
         productId: 1,
         quantity: 2,
       };
-      
 
       before(() => {
         sinon.stub(salesModels, "findById").resolves(saleMock);
@@ -105,6 +109,12 @@ describe("SALES SERVICE TESTS", () => {
       it("objeto não é vazio", async () => {
         const response = await salesModels.findById(1);
         expect(response).to.be.not.empty;
+      });
+
+      it("Retorna um objeto", async () => {
+        const response = await salesModels.findById(1);
+
+        expect(response).to.be.an("object");
       });
 
       it("Retorna um objeto com as informações da venda", async () => {
@@ -172,7 +182,7 @@ describe("SALES SERVICE TESTS", () => {
         {
           productId: 1,
           quantity: 5,
-        }
+        },
       ];
 
       const reponseCreateProduct = {
@@ -203,6 +213,17 @@ describe("SALES SERVICE TESTS", () => {
         salesModels.createSalesProduct.restore();
       });
 
+      it("Retorna um objeto", async () => {
+        const response = await salesModels.create(sales);
+
+        expect(response).to.be.an("object");
+      });
+
+      it("objeto não é vazio", async () => {
+        const response = await salesModels.create(sales);
+        expect(response).to.be.not.empty;
+      });
+
       it("quantidade de produto >= quantidade da venda", async () => {
         const response = await salesServices.create(sales);
 
@@ -216,15 +237,20 @@ describe("SALES SERVICE TESTS", () => {
       });
 
       it("valor da chave itemsSold é um objeto", async () => {
-        const reponse = await salesServices.create(sales);
+        const response = await salesServices.create(sales);
 
-        expect(typeof reponse.itemsSold).to.be.equal("object");
+        expect(typeof response.itemsSold).to.be.equal("object");
+      });
+
+      it("valor da chave itemsSold não é vazio", async () => {
+        const response = await salesServices.create(sales);
+        expect(response.itemsSold).to.be.not.empty;
       });
 
       it("valor da chave itemsSold é um objeto com as chaves: productId e quantity", async () => {
-        const reponse = await salesServices.create(sales);
+        const response = await salesServices.create(sales);
 
-        reponse.itemsSold.forEach((item) => {
+        response.itemsSold.forEach((item) => {
           expect(item).to.include.all.keys("productId", "quantity");
         });
       });
@@ -242,7 +268,7 @@ describe("SALES SERVICE TESTS", () => {
       });
     });
 
-    describe('Erro se não achar venda pelo id', () => {
+    describe("Erro se não achar venda pelo id", () => {
       const sales = [
         {
           productId: 1,
@@ -262,11 +288,11 @@ describe("SALES SERVICE TESTS", () => {
         salesModels.findById.restore();
       });
 
-      it('retorna null', async () => {
+      it("retorna null", async () => {
         const response = await salesServices.update({ sales, id: 3 });
         expect(response).to.be.null;
-      })
-    })
+      });
+    });
 
     describe("Sucesso ao atualizar vendas", () => {
       const sales = [
@@ -282,8 +308,8 @@ describe("SALES SERVICE TESTS", () => {
 
       const returnFind = [
         { productId: 1, quantity: 20, date: "2022-03-03T20:08:43.000Z" },
-        { productId: 2, quantity: 3, date: "2022-03-03T20:08:43.000Z" }
-      ]
+        { productId: 2, quantity: 3, date: "2022-03-03T20:08:43.000Z" },
+      ];
 
       const reponseUpdateSale = {
         fieldCount: 0,
@@ -311,7 +337,7 @@ describe("SALES SERVICE TESTS", () => {
 
       it("retorna um objeto", async () => {
         const response = await salesServices.update({ sales, id: 3 });
-        expect(typeof response).to.be.equal("object");
+        expect(response).to.be.an("object");
       });
 
       it("objeto não é vazio", async () => {
@@ -331,11 +357,21 @@ describe("SALES SERVICE TESTS", () => {
         expect(reponse).to.include.all.keys("saleId", "itemUpdated");
       });
 
-      it('chave itemUpdated possui dois objetos', async () => {
+      it("chave itemUpdated é um objeto", async () => {
+        const response = await salesServices.update({ sales, id: 3 });
+        expect(typeof response.itemUpdated).to.be.equal("object");
+      });
+
+      it("chave itemUpdated não é um objeto vazio", async () => {
+        const response = await salesServices.update({ sales, id: 3 });
+        expect(response.itemUpdated).to.be.not.empty;
+      });
+
+      it("chave itemUpdated possui dois objetos", async () => {
         const reponse = await salesServices.update({ sales, id: 3 });
 
         expect(reponse.itemUpdated).to.be.have.length(2);
-      })
+      });
 
       it("valor da chave itemUpdated é objeto", async () => {
         const reponse = await salesServices.update({ sales, id: 3 });
@@ -373,17 +409,17 @@ describe("SALES SERVICE TESTS", () => {
         fieldCount: 0,
         affectedRows: 1,
         insertId: 0,
-        info: '',
+        info: "",
         serverStatus: 2,
-        warningStatus: 0
-      }
+        warningStatus: 0,
+      };
 
       const mockReturnModel = [
         {
           productId: 3,
           quantity: 15,
           date: "2022-03-03T00:57:32.000Z",
-        }
+        },
       ];
 
       const expectedReturn = {
@@ -407,7 +443,7 @@ describe("SALES SERVICE TESTS", () => {
 
       it("retorna um objeto", async () => {
         const response = await salesServices.destroy(3);
-        expect(typeof response).to.be.equal("object");
+        expect(response).to.be.an("object");
       });
 
       it("objeto não é vazio", async () => {
